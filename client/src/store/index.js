@@ -116,7 +116,7 @@ export const useGlobalStore = () => {
         async function asyncChangeListName(id) {
             let response = await api.getPlaylistById(id);
             if (response.data.success) {
-                let playlist = response.data.playist;
+                let playlist = response.data.playlist;
                 playlist.name = newName;
                 async function updateList(playlist) {
                     response = await api.updatePlaylistById(playlist._id, playlist);
@@ -187,10 +187,31 @@ export const useGlobalStore = () => {
         asyncSetCurrentList(id);
     }
     store.createNewList = function() {
-        async function asyncCreatNewList(){
-            let response = await api.createPlaylist();
-            console.log("Done")
+        console.log("made to store")
+        async function asyncCreateNewList() {
+            console.log("creating")
+            let bodyObj = {
+                name: "Untitled",
+                songs: [], 
+            }
+            let response = await api.createPlaylist(bodyObj);
+            let playlist = response.data.playlist;
+            if (response.data.success){
+                storeReducer({
+                    type: GlobalStoreActionType.CREATE_NEW_LIST,
+                    payload: playlist,
+                });
+                store.history.push("/playlist/" + playlist._id);
+            }
+
+            console.log("DONE");
         }
+        asyncCreateNewList();   
+        // async function asyncCreateNewList(){
+        //     console.log("HERE");
+        //     let response = api.createPlaylist();
+        //     console.log("Done");
+        // }
     }
 
     store.getPlaylistSize = function() {

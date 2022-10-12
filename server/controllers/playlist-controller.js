@@ -7,6 +7,7 @@ const Playlist = require('../models/playlist-model')
     @author McKilla Gorilla
 */
 createPlaylist = (req, res) => {
+    console.log("HERE");
     const body = req.body;
     console.log("createPlaylist body: " + body);
 
