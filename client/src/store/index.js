@@ -18,6 +18,7 @@ export const GlobalStoreActionType = {
     LOAD_ID_NAME_PAIRS: "LOAD_ID_NAME_PAIRS",
     SET_CURRENT_LIST: "SET_CURRENT_LIST",
     SET_LIST_NAME_EDIT_ACTIVE: "SET_LIST_NAME_EDIT_ACTIVE",
+    MARK_LIST_FOR_DELETION: "MARK_LIST_FOR_DELETION",
 }
 
 // WE'LL NEED THIS TO PROCESS TRANSACTIONS
@@ -31,13 +32,15 @@ export const useGlobalStore = () => {
         idNamePairs: [],
         currentList: null,
         newListCounter: 0,
-        listNameActive: false
+        listNameActive: false,
+        listToDelete: null,
+        recentPlaylist: null,
     });
 
     // HERE'S THE DATA STORE'S REDUCER, IT MUST
     // HANDLE EVERY TYPE OF STATE CHANGE
     const storeReducer = (action) => {
-        const { type, payload } = action;
+        const { type, payload, listToDelete, recentPlaylist } = action;
         switch (type) {
             // LIST UPDATE OF ITS NAME
             case GlobalStoreActionType.CHANGE_LIST_NAME: {
@@ -81,7 +84,9 @@ export const useGlobalStore = () => {
                     idNamePairs: store.idNamePairs,
                     currentList: null,
                     newListCounter: store.newListCounter,
-                    listNameActive: false
+                    listNameActive: false,
+                    listToDelete: listToDelete,
+                    recentPlaylist: recentPlaylist,
                 });
             }
             // UPDATE A LIST
@@ -132,6 +137,7 @@ export const useGlobalStore = () => {
                                         playlist: playlist
                                     }
                                 });
+                                store.history.push("/playlist/" + playlist._id);
                             }
                         }
                         getListPairs(playlist);
@@ -141,6 +147,23 @@ export const useGlobalStore = () => {
             }
         }
         asyncChangeListName(id);
+    }
+    store.deleteList = function(){
+        const id = store.listToDelete;
+        async function asyncDeleteList(id) {
+            let response = await api.deletePlaylistById(id);
+            if (response.data.success) {
+                console.log("DELETED SUCCESSFULLY")
+            }
+        }
+        asyncDeleteList(id).catch(err => console.log(err));
+        storeReducer({
+            type: GlobalStoreActionType.MARK_LIST_FOR_DELETION,
+            payload: null,
+            listToDelete: null,
+       })
+       store.loadIdNamePairs();
+       store.history.push("/");
     }
 
     // THIS FUNCTION PROCESSES CLOSING THE CURRENTLY LOADED LIST
@@ -187,9 +210,7 @@ export const useGlobalStore = () => {
         asyncSetCurrentList(id);
     }
     store.createNewList = function() {
-        console.log("made to store")
         async function asyncCreateNewList() {
-            console.log("creating")
             let bodyObj = {
                 name: "Untitled",
                 songs: [], 
@@ -203,8 +224,6 @@ export const useGlobalStore = () => {
                 });
                 store.history.push("/playlist/" + playlist._id);
             }
-
-            console.log("DONE");
         }
         asyncCreateNewList();   
         // async function asyncCreateNewList(){
@@ -230,6 +249,37 @@ export const useGlobalStore = () => {
             type: GlobalStoreActionType.SET_LIST_NAME_EDIT_ACTIVE,
             payload: null
         });
+    }
+    
+    store.setdeleteNameActive = function (deletedID) {
+        async function asyncCreateNewList() {
+            let response = await api.getPlaylistById(deletedID);
+                if (response.data.success) {
+                    let playlist = response.data.playlist;
+
+                    console.log("Playlist is", playlist);
+                    if (response.data.success) {
+                        storeReducer({
+                            type: GlobalStoreActionType.MARK_LIST_FOR_DELETION,
+                            payload: null,
+                            listToDelete: deletedID,
+                            recentPlaylist: playlist,
+                    })
+                    console.log("STORE HAS", store.recentPlaylist)
+                    }
+                }
+            }
+        asyncCreateNewList();
+    }
+    store.disableDelete = function(){
+        storeReducer({
+            payload: null,
+            listToDelete: null,
+       })
+       let modal = document.getElementById("delete-list-modal");
+        if(modal){
+            modal.classList.remove("is-visible");
+        }
     }
 
     // THIS GIVES OUR STORE AND ITS REDUCER TO ANY COMPONENT THAT NEEDS IT

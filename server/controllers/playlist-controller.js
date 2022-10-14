@@ -40,6 +40,41 @@ createPlaylist = (req, res) => {
             })
         })
 }
+deletePlaylistById = async (req, res) => {
+    await Playlist.deleteOne({ _id: req.params.id }, (err, list) => {
+        if (err) {
+            return res.status(400).json({ success: false, error: err })
+        }
+
+        return res.status(200).json({ success: true, playlist: list })
+    }).catch(err => console.log(err))
+}
+
+updatePlaylistById = async (req, res) => {
+    const body = req.body;
+    if (!body) {
+        return res.status(400).json({
+            success: false,
+            error: 'You must provide a name',
+        })
+    }
+    const playlist = new Playlist(body);
+    //console.log("playlist: " + JSON.stringify(body));
+    if (!playlist) {
+        return res.status(400).json({ success: false, error: err })
+    }
+
+    await Playlist.updateOne({ _id: req.params.id},{name:playlist.name}, (err, list) => {
+        console.log(list);
+        console.log("ERROR", err);
+        if (err) {
+            return res.status(400).json({ success: false, error: err })
+        }
+        console.log("success");
+        return res.status(200).json({ success: true, playlist: list })
+    }).catch(err => console.log(err))
+}
+
 getPlaylistById = async (req, res) => {
     await Playlist.findOne({ _id: req.params.id }, (err, list) => {
         if (err) {
@@ -92,5 +127,7 @@ module.exports = {
     createPlaylist,
     getPlaylists,
     getPlaylistPairs,
-    getPlaylistById
+    getPlaylistById,
+    updatePlaylistById,
+    deletePlaylistById,
 }
