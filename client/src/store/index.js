@@ -232,7 +232,32 @@ export const useGlobalStore = () => {
         //     console.log("Done");
         // }
     }
-
+    store.addSong = function(song,index){
+        if(!song && !index){
+            console.log("from adding button")
+            song = {
+                title: "Untitled",
+                artist: "Unknown",
+                youTubeId: "dQw4w9WgXcQ",
+            }
+            index = store.currentList.songs.length
+        }
+        store.currentList.songs.splice(index,0,song)
+        console.log("Current List", store.currentList)
+        console.log("index", index)
+        let currentID = store.currentList._id
+        async function asyncAddSong() {
+            let response = await api.updatePlaylistById(currentID,store.currentList);
+            if (response.data.success) {
+                storeReducer({
+                    type: GlobalStoreActionType.SET_CURRENT_LIST,
+                    payload: store.currentList
+                });
+                store.history.push("/playlist/" + store.currentList._id);
+            }
+        }
+        asyncAddSong();
+    }
     store.getPlaylistSize = function() {
         return store.currentList.songs.length;
     }

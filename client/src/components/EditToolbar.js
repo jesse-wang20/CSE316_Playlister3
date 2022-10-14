@@ -13,6 +13,10 @@ function EditToolbar() {
 
     let enabledButtonClass = "playlister-button";
 
+    function handleAdd(){
+        console.log("ADDING")
+        store.addSong();
+    }
     function handleUndo() {
         store.undo();
     }
@@ -35,6 +39,7 @@ function EditToolbar() {
                 disabled={editStatus}
                 value="+"
                 className={enabledButtonClass}
+                onClick={handleAdd}
             />
             <input
                 type="button"
