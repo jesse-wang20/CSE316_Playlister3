@@ -64,7 +64,7 @@ updatePlaylistById = async (req, res) => {
         return res.status(400).json({ success: false, error: err })
     }
 
-    await Playlist.updateOne({ _id: req.params.id},{name:playlist.name}, (err, list) => {
+    await Playlist.updateOne({ _id: req.params.id},{name:playlist.name, songs:playlist.songs}, (err, list) => {
         console.log(list);
         console.log("ERROR", err);
         if (err) {

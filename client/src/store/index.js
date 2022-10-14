@@ -19,6 +19,7 @@ export const GlobalStoreActionType = {
     SET_CURRENT_LIST: "SET_CURRENT_LIST",
     SET_LIST_NAME_EDIT_ACTIVE: "SET_LIST_NAME_EDIT_ACTIVE",
     MARK_LIST_FOR_DELETION: "MARK_LIST_FOR_DELETION",
+    MARK_SONG_FOR_DELETION: "MARK_SONG_FOR_DELETION"
 }
 
 // WE'LL NEED THIS TO PROCESS TRANSACTIONS
@@ -35,6 +36,8 @@ export const useGlobalStore = () => {
         listNameActive: false,
         listToDelete: null,
         recentPlaylist: null,
+        songToDelete: null,
+        recentSong: null,
     });
 
     // HERE'S THE DATA STORE'S REDUCER, IT MUST
@@ -105,6 +108,16 @@ export const useGlobalStore = () => {
                     currentList: payload,
                     newListCounter: store.newListCounter,
                     listNameActive: true
+                });
+            }
+            case GlobalStoreActionType.MARK_SONG_FOR_DELETION: {
+                return setStore({
+                    idNamePairs: store.idNamePairs,
+                    currentList: store.currentList,
+                    newListCounter: store.newListCounter,
+                    listNameActive: false,
+                    songtoDelete: listToDelete,
+                    recentSong: recentPlaylist,
                 });
             }
             default:
@@ -249,10 +262,12 @@ export const useGlobalStore = () => {
         async function asyncAddSong() {
             let response = await api.updatePlaylistById(currentID,store.currentList);
             if (response.data.success) {
+                console.log("SUCCESS IN ADDING")
                 storeReducer({
                     type: GlobalStoreActionType.SET_CURRENT_LIST,
                     payload: store.currentList
                 });
+                console.log("CURRENTL LIST AFTER ADDING", store.currentList)
                 store.history.push("/playlist/" + store.currentList._id);
             }
         }
@@ -295,6 +310,16 @@ export const useGlobalStore = () => {
                 }
             }
         asyncCreateNewList();
+    }
+    store.deleteSong = function(songID) {
+        storeReducer({
+            type: GlobalStoreActionType.MARK_SONG_FOR_DELETION,
+            payload: null,
+            listToDelete: songID,
+            recentPlaylist: store.currentList.songs[songID],
+        })
+        console.log("DELETING SONG?", songID)
+        console.log("SONG IS", store.recentSong)
     }
     store.disableDelete = function(){
         storeReducer({
