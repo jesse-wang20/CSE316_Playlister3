@@ -6,10 +6,10 @@ function DeleteSongModal() {
     const { store } = useContext(GlobalStoreContext);
 
     function confirmDelete(event){
-        console.log("DELETING SONG")
+        store.deleteSongFull();
     }
     function cancelDelete(event){
-        console.log("DELEETING CANCEL");
+        store.disableDeleteSong();
     }
     if(store.songtoDelete){
         let modal = document.getElementById("delete-song-modal");

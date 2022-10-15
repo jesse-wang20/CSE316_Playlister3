@@ -318,8 +318,37 @@ export const useGlobalStore = () => {
             listToDelete: songID,
             recentPlaylist: store.currentList.songs[songID],
         })
-        console.log("DELETING SONG?", songID)
-        console.log("SONG IS", store.recentSong)
+    }
+    store.deleteSongFull = function(index, song){
+        if(!song && !index){
+            song = store.recentSong;
+            index = store.songtoDelete;
+        }
+        console.log(store.songtoDelete);
+        console.log(store.recentSong)
+        store.currentList.songs.splice(index,1)
+        let currentID = store.currentList._id
+        async function asyncAddSong() {
+            let response = await api.updatePlaylistById(currentID,store.currentList);
+            if (response.data.success) {
+                storeReducer({
+                    type: GlobalStoreActionType.SET_CURRENT_LIST,
+                    payload: store.currentList
+                });
+                store.history.push("/playlist/" + store.currentList._id);
+            }
+        }
+        asyncAddSong();
+    }
+    store.disableDeleteSong = function(){
+        storeReducer({
+            payload: null,
+            songtoDelete: null,
+        })
+        let modal = document.getElementById("delete-song-modal");
+        if(modal){
+            modal.classList.remove("is-visible");
+        }
     }
     store.disableDelete = function(){
         storeReducer({
