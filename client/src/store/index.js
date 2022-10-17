@@ -184,6 +184,8 @@ export const useGlobalStore = () => {
             let response = await api.deletePlaylistById(id);
             if (response.data.success) {
                 console.log("DELETED SUCCESSFULLY")
+                store.loadIdNamePairs();
+                store.history.push("/");
             }
         }
         asyncDeleteList(id).catch(err => console.log(err));
@@ -192,8 +194,6 @@ export const useGlobalStore = () => {
             payload: null,
             listToDelete: null,
        })
-       store.loadIdNamePairs();
-       store.history.push("/");
     }
 
     // THIS FUNCTION PROCESSES CLOSING THE CURRENTLY LOADED LIST
