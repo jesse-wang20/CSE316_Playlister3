@@ -5,8 +5,18 @@ function SongCard(props) {
     const { store } = useContext(GlobalStoreContext);
     const { song, index } = props;
     const [deleteSongActive, setDeleteSongActive] = useState(false);
-
+    const [editSongActive, setEditSongActive] = useState(false);
     let cardClass = "list-card unselected-list-card";
+    function handleEditSong(event){
+        event.stopPropagation();
+        let val = !editSongActive;
+        if (val){
+            let id = event.target.id.substring("song-".length);
+            id = id.replace('-card','')
+            store.editSong(id);
+        }
+        setEditSongActive();
+    } 
     function handleDeleteSong(event){
         event.stopPropagation();
         let val = !deleteSongActive;
@@ -21,6 +31,7 @@ function SongCard(props) {
             key={index}
             id={'song-' + index + '-card'}
             className={cardClass}
+            onDoubleClick={handleEditSong}
         >
             {index + 1}.
             <a

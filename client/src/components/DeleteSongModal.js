@@ -6,7 +6,7 @@ function DeleteSongModal() {
     const { store } = useContext(GlobalStoreContext);
 
     function confirmDelete(event){
-        store.deleteSongFull();
+        store.DeleteSongTransaction();
     }
     function cancelDelete(event){
         store.disableDeleteSong();
@@ -22,7 +22,7 @@ function DeleteSongModal() {
         }
     }
     let name = "no"
-    if(store.recentPlaylist){
+    if(store.recentSong){
         name = store.recentSong.title;
     }
     
