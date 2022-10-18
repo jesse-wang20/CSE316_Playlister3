@@ -27,8 +27,11 @@ function EditToolbar() {
         store.closeCurrentList();
     }
     let editStatus = false;
-    if (store.isListNameEditActive) {
+    if (store.listNameActive) {
         editStatus = true;
+    }
+    if(!editStatus){
+        editStatus = store.modalOpen
     }
     return (
         <span id="edit-toolbar">
