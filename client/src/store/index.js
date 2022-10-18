@@ -28,7 +28,8 @@ export const GlobalStoreActionType = {
     MARK_SONG_FOR_DELETION: "MARK_SONG_FOR_DELETION",
     MARK_SONG_FOR_EDIT: "MARK_SONG_FOR_EDIT",
     MOVE_SONG_START: "MOVE_SONG_START",
-    MOVE_SONG_END: "MOVE_SONG_END"
+    MOVE_SONG_END: "MOVE_SONG_END",
+    CLEAR: "CLEAR"
 }
 
 // WE'LL NEED THIS TO PROCESS TRANSACTIONS
@@ -48,6 +49,8 @@ export const useGlobalStore = () => {
         songToDelete: null,
         recentSong: null,
         modalOpen: null,
+        hasTransUndo: null,
+        hasTransRedo: null,
     });
 
     // HERE'S THE DATA STORE'S REDUCER, IT MUST
@@ -162,6 +165,16 @@ export const useGlobalStore = () => {
                     listNameActive: false,
                     secondIndex: payload,
                     modalOpen: false,
+                });
+            }
+            case GlobalStoreActionType.CLEAR: {
+                console.log("IN HERE,",tps.hasTransactionToUndo())
+                return setStore({
+                    idNamePairs: store.idNamePairs,
+                    currentList: store.currentList,
+                    newListCounter: store.newListCounter,
+                    hasTransUndo: tps.hasTransactionToUndo(),
+                    hasTransRedo: tps.hasTransactionToRedo(),
                 });
             }
             default:
@@ -320,6 +333,9 @@ export const useGlobalStore = () => {
                     type: GlobalStoreActionType.SET_CURRENT_LIST,
                     payload: store.currentList
                 });
+                storeReducer({
+                    type: GlobalStoreActionType.CLEAR,
+                });
                 console.log("CURRENTL LIST AFTER ADDING", store.currentList)
                 store.history.push("/playlist/" + store.currentList._id);
             }
@@ -363,6 +379,10 @@ export const useGlobalStore = () => {
                     type: GlobalStoreActionType.SET_CURRENT_LIST,
                     payload: store.currentList
                 });
+                storeReducer({
+                    type: GlobalStoreActionType.CLEAR,
+                    payload: store.currentList
+                });
                 console.log("CURRENTL LIST AFTER ADDING", store.currentList)
                 store.history.push("/playlist/" + store.currentList._id);
             }
@@ -374,9 +394,17 @@ export const useGlobalStore = () => {
     }
     store.undo = function () {
         tps.undoTransaction();
+        storeReducer({
+            type: GlobalStoreActionType.CLEAR,
+            payload: store.currentList
+        });
     }
     store.redo = function () {
         tps.doTransaction();
+        storeReducer({
+            type: GlobalStoreActionType.CLEAR,
+            payload: store.currentList
+        });
     }
 
     // THIS FUNCTION ENABLES THE PROCESS OF EDITING A LIST NAME
@@ -459,6 +487,10 @@ export const useGlobalStore = () => {
                     type: GlobalStoreActionType.SET_CURRENT_LIST,
                     payload: store.currentList
                 });
+                storeReducer({
+                    type: GlobalStoreActionType.CLEAR,
+                    payload: store.currentList
+                });
                 store.history.push("/playlist/" + store.currentList._id);
             }
         }
@@ -477,6 +509,9 @@ export const useGlobalStore = () => {
                 storeReducer({
                     type: GlobalStoreActionType.SET_CURRENT_LIST,
                     payload: store.currentList
+                });
+                storeReducer({
+                    type: GlobalStoreActionType.CLEAR,
                 });
                 store.history.push("/playlist/" + store.currentList._id);
             }
