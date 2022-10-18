@@ -17,10 +17,10 @@ export default class MoveSong_Transaction extends jsTPS_Transaction {
     }
 
     doTransaction() {
-        this.app.moveSong(this.oldSongIndex, this.newSongIndex);
+        this.app.MoveSong(this.oldSongIndex, this.newSongIndex);
     }
     
     undoTransaction() {
-        this.app.moveSong(this.newSongIndex, this.oldSongIndex);
+        this.app.MoveSong(this.newSongIndex, this.oldSongIndex);
     }
 }

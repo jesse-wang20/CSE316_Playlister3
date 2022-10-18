@@ -27,6 +27,8 @@ export const GlobalStoreActionType = {
     MARK_LIST_FOR_DELETION: "MARK_LIST_FOR_DELETION",
     MARK_SONG_FOR_DELETION: "MARK_SONG_FOR_DELETION",
     MARK_SONG_FOR_EDIT: "MARK_SONG_FOR_EDIT",
+    MOVE_SONG_START: "MOVE_SONG_START",
+    MOVE_SONG_END: "MOVE_SONG_END"
 }
 
 // WE'LL NEED THIS TO PROCESS TRANSACTIONS
@@ -135,6 +137,24 @@ export const useGlobalStore = () => {
                     listNameActive: false,
                     songtoEdit: listToDelete,
                     recentSong: recentPlaylist,
+                });
+            }
+            case GlobalStoreActionType.MOVE_SONG_START: {
+                return setStore({
+                    idNamePairs: store.idNamePairs,
+                    currentList: store.currentList,
+                    newListCounter: store.newListCounter,
+                    listNameActive: false,
+                    firstIndex: payload,
+                });
+            }
+            case GlobalStoreActionType.MOVE_SONG_END: {
+                return setStore({
+                    idNamePairs: store.idNamePairs,
+                    currentList: store.currentList,
+                    newListCounter: store.newListCounter,
+                    listNameActive: false,
+                    secondIndex: payload,
                 });
             }
             default:
@@ -262,6 +282,44 @@ export const useGlobalStore = () => {
         //     console.log("Done");
         // }
     }
+    store.MoveSongTransaction = function(start, end){
+        console.log("STart", start)
+        console.log("END", end)
+
+        let transaction = new MoveSong_Transaction(store, start, end);
+        tps.addTransaction(transaction);
+    }
+    store.MoveSong = function(start, end) {
+        let list = store.currentList;
+        if (start < end) {
+            let temp = list.songs[start];
+            for (let i = start; i < end; i++) {
+                list.songs[i] = list.songs[i + 1];
+            }
+            list.songs[end] = temp;
+        }
+        else if (start > end) {
+            let temp = list.songs[start];
+            for (let i = start; i > end; i--) {
+                list.songs[i] = list.songs[i - 1];
+            }
+            list.songs[end] = temp;
+        }
+        let currentID = store.currentList._id;
+        async function asyncAddSong() {
+            let response = await api.updatePlaylistById(currentID,store.currentList);
+            if (response.data.success) {
+                storeReducer({
+                    type: GlobalStoreActionType.SET_CURRENT_LIST,
+                    payload: store.currentList
+                });
+                console.log("CURRENTL LIST AFTER ADDING", store.currentList)
+                store.history.push("/playlist/" + store.currentList._id);
+            }
+        }
+        asyncAddSong();
+        
+    }
     store.DeleteSongTransaction = function(index, song) {
         let transaction = new DeleteSong_Transaction(store, index, song);
         tps.addTransaction(transaction);
@@ -320,6 +378,20 @@ export const useGlobalStore = () => {
             type: GlobalStoreActionType.SET_LIST_NAME_EDIT_ACTIVE,
             payload: null
         });
+    }
+    store.setStartMoveSongActive = function (index) {
+        storeReducer({
+            type: GlobalStoreActionType.MOVE_SONG_START,
+            payload: index
+        });
+    }
+    store.setEndMoveSongActive = function (index) {
+        storeReducer({
+            type: GlobalStoreActionType.MOVE_SONG_END,
+            payload: index
+        });
+        console.log(store.firstIndex)
+        store.MoveSongTransaction(store.firstIndex,index)
     }
     
     store.setdeleteNameActive = function (deletedID) {
