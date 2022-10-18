@@ -4,31 +4,10 @@ import { GlobalStoreContext } from '../store'
 
 function EditSongModal() {
     const { store } = useContext(GlobalStoreContext);
-    const [ text1, setText1 ] = useState("");
-    const [ text2, setText2 ] = useState("");
-    const [ text3, setText3 ] = useState("");
-    function handleUpdateText1(event) {
-        setText1(event.target.value );
-    }
-    function handleUpdateText2(event) {
-        setText2(event.target.value );
-    }
-    function handleUpdateText3(event) {
-        setText3(event.target.value );
-    }
     function handleConfirm(event){
-        let sname = text1;
-        let sartist = text2;
-        let sytid = text3;
-        if(!text1){
-            sname = store.recentSong.title;
-        }
-        if(!text2){
-            sartist = store.recentSong.artist;
-        }
-        if(!text3){
-            sytid = store.recentSong.youTubeId;
-        }
+        let sname = document.getElementById("editSongTitle").value;
+        let sartist = document.getElementById("editSongArtist").value
+        let sytid = document.getElementById("editSongYTID").value
         let newSong = {
             title:sname,
             artist:sartist,
@@ -80,13 +59,9 @@ function EditSongModal() {
                     <b>Title:</b>
                     <input id = "editSongTitle" type="text1" />
                     <b>Artist:</b>
-                    <input id = "editSongArtist" type="text2"
-                    onChange={handleUpdateText2}
-                    defaultValue={artist}/>
+                    <input id = "editSongArtist" type="text2"/>
                     <b>You Tube Id:</b>
-                    <input id = "editSongYTID" type="text3" 
-                    onChange={handleUpdateText3}
-                    defaultValue={youtubeID}/>
+                    <input id = "editSongYTID" type="text3" />
                 </div>
                 <div class="modal-south">
                     <input type="button" 

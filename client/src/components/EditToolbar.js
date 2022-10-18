@@ -33,12 +33,25 @@ function EditToolbar() {
     if(!editStatus){
         editStatus = store.modalOpen
     }
+    let hasRedo = true;
+    if(store.hasTransRedo){
+        hasRedo = !store.hasTransRedo
+    }
+    let hasUndo = true;
+    console.log(store.hasTransUndo)
+    if(store.hasTransUndo){
+        hasUndo = !store.hasTransUndo
+    }
+    let NO = true;
+    if(store.currentList){
+        NO = false;
+    }
     return (
         <span id="edit-toolbar">
             <input
                 type="button"
                 id='add-song-button'
-                disabled={editStatus}
+                disabled={NO || editStatus}
                 value="+"
                 className={enabledButtonClass}
                 onClick={handleAdd}
@@ -46,7 +59,7 @@ function EditToolbar() {
             <input
                 type="button"
                 id='undo-button'
-                disabled={editStatus}
+                disabled={NO || hasUndo || editStatus}
                 value="⟲"
                 className={enabledButtonClass}
                 onClick={handleUndo}
@@ -54,7 +67,7 @@ function EditToolbar() {
             <input
                 type="button"
                 id='redo-button'
-                disabled={editStatus}
+                disabled={NO || hasRedo || editStatus}
                 value="⟳"
                 className={enabledButtonClass}
                 onClick={handleRedo}
@@ -62,7 +75,7 @@ function EditToolbar() {
             <input
                 type="button"
                 id='close-button'
-                disabled={editStatus}
+                disabled={NO || editStatus}
                 value="&#x2715;"
                 className={enabledButtonClass}
                 onClick={handleClose}
